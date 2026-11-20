@@ -675,7 +675,7 @@ const saveCfg=()=>store.set('cfg',HOST.cfg);
 
 /* ===================== الشبكة: خادم MQTT عام ومجاني (لا يحتاج أي حساب) ===================== */
 /* الخوادم على المنفذ 443 أولاً لأنه مفتوح في شبكات الجوال؛ الرقم الأول من رمز اللعبة يحدد الخادم */
-const BROKERS=[{url:'wss://mqtt.eclipseprojects.io:443/mqtt'},{url:'wss://public.cloud.shiftr.io:443',username:'public',password:'public'},{url:'wss://broker.hivemq.com:8884/mqtt'},{url:'wss://broker.emqx.io:8084/mqtt'}];
+const BROKERS=[{url:'wss://public.cloud.shiftr.io:443',username:'public',password:'public'},{url:'wss://mqtt.eclipseprojects.io:443/mqtt'},{url:'wss://broker.hivemq.com:8884/mqtt'},{url:'wss://broker.emqx.io:8084/mqtt'}];
 const MQTT_LIBS=['https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js','https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js'];
 const NET={client:null,code:null,role:null,pid:null,peers:new Map(),hostOn:false,connected:false,me:null,subP:false};
 try{NET.pid=sessionStorage.getItem('mydan.pid')}catch(e){}
@@ -692,7 +692,15 @@ const validCode=c=>/^[1-4]\d{5}$/.test(c);
 async function netConnect(role,code){
  if(!await loadMqtt())throw new Error('lib');
  netClose();NET.role=role;NET.peers=new Map();NET.hostOn=false;
- const order=code?[parseInt(code[0])-1]:BROKERS.map((_,i)=>i);
+ if(!code){
+  /* المشرف: نجرب خوادم المنفذ 443 معاً ونأخذ أول من يستجيب، ثم البقية إن فشلت */
+  const rest=String(Math.floor(10000+Math.random()*90000));
+  const race=idxs=>new Promise(res=>{let left=idxs.length,won=false;idxs.forEach(i=>{const cd=(i+1)+rest;
+   tryBroker(i,{topic:TOPIC_ROOT+cd+'/h',payload:'off',retain:true,qos:1}).then(c=>{if(won){try{c.end(true)}catch(e){}return}won=true;res({c,cd})},()=>{if(--left===0&&!won)res(null)})})});
+  for(const g of [[0,1],[2,3]]){const r=await race(g.filter(i=>i<BROKERS.length));if(r){NET.code=r.cd;NET.client=r.c;wire(r.c);return NET.code}}
+  NET.code=null;throw new Error('net');
+ }
+ const order=[parseInt(code[0])-1];
  for(const i of order){
   const rest=code?code.slice(1):String(Math.floor(10000+Math.random()*90000));
   NET.code=(i+1)+rest;

@@ -156,6 +156,7 @@ button{font-family:inherit}
 .small{font-size:14px}
 .mt{margin-top:14px}
 .hide{display:none!important}
+.chip.hard{background:rgba(229,107,74,.2);border-color:#e5764a;color:#ffc2a8;margin-inline-start:6px;font-weight:800}
 .qimg{display:flex;justify-content:center;align-items:center;margin:4px 0 14px;min-height:80px}
 .qimg img{max-width:100%;max-height:42vh;border-radius:16px;border:3px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.4);object-fit:contain;background:#000}
 .qimg.big img{max-height:52vh}
@@ -322,12 +323,103 @@ general:{
 }
 };
 
+/* ===== بنك الأسئلة الصعبة (يُختار منها 1–2 في نهاية كل جزء) ===== */
+const HARD={
+quran:{
+ mcq:[['ما أطول آية في القرآن الكريم؟',['آية الكرسي','آية الدَّين','آية النور','آية المواريث'],1],['في أي سورة ورد اسم الصحابي «زيد» صراحةً؟',['الأحزاب','النور','التوبة','الفتح'],0],['أيّ الأنبياء التالية ورد اسمه في القرآن الكريم أكثر من غيره؟',['إبراهيم','موسى','عيسى','نوح'],1]],
+ tf:[['سورة التوبة هي السورة التي ورد فيها اسم الصحابي «زيد».',0],['آية الدَّين في سورة البقرة هي أطول آية في القرآن الكريم.',1]],
+ text:[['في أي سورة ورد اسم الصحابي زيد بن حارثة؟',['الأحزاب']],['ما أطول آية في القرآن الكريم؟',['آية الدين','الدين','آية المداينة']],['في أي سورة تكررت آية «فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ»؟',['الرحمن']]],
+ guess:[['كم مرة تكررت آية «فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ» في سورة الرحمن؟',31,15,'مرة'],['كم عدد آيات سورة الشعراء؟',227,100,'آية'],['كم عدد السور التي تبدأ بالحروف المقطّعة؟',29,15,'سورة']],
+ list:[['اذكر السور التي تبدأ بـ«حم» (الحواميم)',[['غافر','المؤمن'],['فصلت'],['الشورى'],['الزخرف'],['الدخان'],['الجاثية'],['الأحقاف']],4],['اذكر سوراً سُمّيت بأسماء أنبياء',[['يونس'],['هود'],['يوسف'],['إبراهيم'],['محمد'],['نوح']],5]],
+ order:[['رتّب السور حسب ترتيبها في المصحف',[['الأنفال',8],['التوبة',9],['يونس',10],['هود',11],['الرعد',13],['الحجر',15]],SEQ_DIR]]
+},
+seerah:{
+ mcq:[['من أول من أرضع النبي ﷺ بعد أمه؟',['ثويبة','أم أيمن','أم الفضل','سمية'],0],['من الصحابي الذي كان دليل النبي ﷺ في طريق الهجرة؟',['عامر بن فهيرة','عبد الله بن أريقط','عبد الله بن أبي بكر','مصعب بن عمير'],1],['من الصحابي الذي أشار بحفر الخندق؟',['سلمان الفارسي','عمار بن ياسر','بلال بن رباح','صهيب الرومي'],0],['من أول سفير في الإسلام؟',['جعفر بن أبي طالب','مصعب بن عمير','دحية الكلبي','عمرو بن العاص'],1]],
+ tf:[['كان عامر بن فهيرة يرعى الغنم قرب الغار ليُخفي آثار النبي ﷺ وأبي بكر في الهجرة.',1],['غزوة بني المصطلق تُسمّى أيضاً غزوة المريسيع.',1],['قاد النبي ﷺ جيش المسلمين بنفسه في غزوة مؤتة.',0]],
+ text:[['من أول شهيدة في الإسلام؟',['سمية','سمية بنت خياط']],['من الصحابي الذي أشار بحفر الخندق؟',['سلمان الفارسي','سلمان']],['ما اسم دليل النبي ﷺ في طريق الهجرة؟',['عبد الله بن أريقط','ابن أريقط']]],
+ guess:[['كم كان عدد جيش المسلمين في غزوة تبوك تقريباً؟',30000,20000,'رجل'],['في أي سنة هجرية كانت غزوة مؤتة؟',8,5,'هـ'],['كم كان عدد شهداء المسلمين في غزوة أحد تقريباً؟',70,50,'شهيداً']],
+ list:[['اذكر قادة المسلمين في غزوة مؤتة',[['زيد بن حارثة','زيد'],['جعفر بن أبي طالب','جعفر'],['عبد الله بن رواحة','ابن رواحة'],['خالد بن الوليد','خالد']],3],['اذكر أمهات المؤمنين (زوجات النبي ﷺ)',[['خديجة'],['سودة'],['عائشة'],['حفصة'],['زينب بنت خزيمة'],['أم سلمة'],['زينب بنت جحش','زينب'],['جويرية'],['أم حبيبة'],['صفية'],['ميمونة']],6]],
+ order:[['رتّب الأحداث',[['غزوة بدر',2],['غزوة الخندق',5],['صلح الحديبية',6],['غزوة خيبر',7],['غزوة مؤتة',8],['غزوة تبوك',9]],TIME_DIR]]
+},
+islhist:{
+ mcq:[['من قائد المسلمين في معركة نهاوند؟',['النعمان بن مقرن','سعد بن أبي وقاص','القعقاع بن عمرو','عمرو بن العاص'],0],['من القائد الذي انتصر في معركة الزلاقة بالأندلس؟',['طارق بن زياد','يوسف بن تاشفين','عبد الرحمن الداخل','موسى بن نصير'],1],['من الخليفة الأموي الذي عرّب الدواوين؟',['معاوية بن أبي سفيان','عبد الملك بن مروان','عمر بن عبد العزيز','هشام بن عبد الملك'],1],['من مؤسس الدولة الأموية في الأندلس؟',['عبد الرحمن الداخل','عبد الرحمن الناصر','طارق بن زياد','المنصور بن أبي عامر'],0]],
+ tf:[['لُقّب عبد الرحمن الداخل بـ«صقر قريش».',1],['كانت معركة الزلاقة بقيادة صلاح الدين الأيوبي.',0],['سقطت بغداد على يد المغول عام 1258م.',1]],
+ text:[['من القائد المسلم في معركة الزلاقة؟',['يوسف بن تاشفين','ابن تاشفين']],['من الملقّب بـ«صقر قريش»؟',['عبد الرحمن الداخل','الداخل']],['من الخليفة الأموي الملقّب بخامس الخلفاء الراشدين؟',['عمر بن عبد العزيز']]],
+ guess:[['في أي عام ميلادي سقطت بغداد على يد المغول؟',1258,150,'م'],['في أي عام ميلادي كانت معركة الزلاقة؟',1086,150,'م'],['في أي عام ميلادي كانت معركة عين جالوت؟',1260,150,'م']],
+ list:[['اذكر خلفاء من الدولة الأموية',[['معاوية بن أبي سفيان','معاوية'],['يزيد بن معاوية'],['مروان بن الحكم'],['عبد الملك بن مروان','عبد الملك'],['الوليد بن عبد الملك'],['سليمان بن عبد الملك'],['عمر بن عبد العزيز'],['يزيد بن عبد الملك'],['هشام بن عبد الملك','هشام'],['مروان بن محمد']],4]],
+ order:[['رتّب الأحداث التاريخية',[['معركة الزلاقة',1086],['معركة حطين',1187],['سقوط بغداد',1258],['معركة عين جالوت',1260],['فتح القسطنطينية',1453],['سقوط غرناطة',1492]],TIME_DIR]]
+},
+math:{
+ mcq:[['ما ناتج 17 × 19؟',['313','323','333','343'],1],['كم مجموع زوايا الشكل السداسي الداخلية؟',['540°','620°','720°','900°'],2],['ما العدد الأولي التالي بعد 89؟',['91','93','97','99'],2],['إذا كان 3س + 7 = 22، فما قيمة س؟',['3','5','7','15'],1]],
+ tf:[['العدد 91 عدد أولي.',0],['مجموع زوايا الشكل الخماسي الداخلية 540 درجة.',1],['الجذر التربيعي للعدد 169 هو 14.',0]],
+ text:[['ما ناتج 25 × 25؟',['625']],['ما أصغر عدد يقبل القسمة على 2 و3 و4 و5؟',['60']],['كم عدد أقطار الشكل السداسي؟',['9','تسعة']]],
+ guess:[['كم ناتج 2 أُس 10؟',1024,500,''],['كم عدد الأعداد الأولية الأصغر من 100؟',25,15,'عدداً'],['كم ثانية في اليوم الكامل؟',86400,40000,'ثانية']],
+ list:[['اذكر أعداداً مربعة كاملة أصغر من 200',[['1'],['4'],['9'],['16'],['25'],['36'],['49'],['64'],['81'],['100'],['121'],['144'],['169'],['196']],7],['اذكر أعداداً أولية بين 50 و100',[['53'],['59'],['61'],['67'],['71'],['73'],['79'],['83'],['89'],['97']],5]],
+ order:[['رتّب الكسور',[['0.6',0.6],['⅝',0.625],['⅔',0.6667],['0.7',0.7],['¾',0.75],['⅘',0.8]],SIZE_DIR]]
+},
+science:{
+ mcq:[['ما الكوكب الذي يدور حول نفسه في اتجاه معاكس لمعظم الكواكب؟',['الزهرة','المريخ','زحل','عطارد'],0],['ما العنصر الأكثر وفرة في القشرة الأرضية؟',['الحديد','الأكسجين','السيليكون','الألومنيوم'],1],['ما الغدة التي تفرز هرمون الإنسولين؟',['الكبد','البنكرياس','الغدة الدرقية','الكلية'],1],['كم عدد الكروموسومات في الخلية الجسدية للإنسان؟',['23','44','46','48'],2]],
+ tf:[['الماس والجرافيت يتكوّنان من عنصر الكربون.',1],['سرعة الصوت في الماء أقل من سرعته في الهواء.',0],['الزئبق فلزٌّ سائل في درجة حرارة الغرفة.',1]],
+ text:[['ما العنصر الذي رمزه الكيميائي Na؟',['الصوديوم']],['ما أقرب نجم إلى الأرض؟',['الشمس']],['ما وحدة قياس شدة التيار الكهربائي؟',['الأمبير']]],
+ guess:[['كم عدد العناصر المعروفة في الجدول الدوري؟',118,40,'عنصراً'],['كم يبلغ متوسط بُعد الأرض عن الشمس (بملايين الكيلومترات)؟',150,70,'مليون كم']],
+ list:[['اذكر الغازات النبيلة',[['الهيليوم'],['النيون'],['الأرغون','الآرغون'],['الكريبتون'],['الزينون'],['الرادون']],4],['اذكر أجزاء الخلية النباتية',[['الجدار الخلوي'],['الغشاء الخلوي','الغشاء البلازمي'],['النواة'],['السيتوبلازم'],['البلاستيدات الخضراء','البلاستيدات'],['الفجوة العصارية','الفجوة'],['الميتوكوندريا'],['الرايبوسومات','الريبوسومات'],['جهاز جولجي'],['الشبكة الإندوبلازمية']],5]],
+ order:[['رتّب الكواكب حسب الحجم',[['عطارد',2440],['المريخ',3390],['الأرض',6371],['نبتون',24622],['زحل',58232],['المشتري',69911]],SIZE_DIR]]
+},
+geo:{
+ mcq:[['ما أعمق بحيرة في العالم؟',['فيكتوريا','بايكال','تنجانيقا','سوبيريور'],1],['ما أطول سلسلة جبال على اليابسة؟',['الهيمالايا','الألب','الأنديز','الروكي'],2],['ما أكبر جزيرة في العالم؟',['مدغشقر','غرينلاند','بورنيو','سومطرة'],1],['ما الدولة التي تمتلك أطول خط ساحلي في العالم؟',['روسيا','أستراليا','كندا','إندونيسيا'],2]],
+ tf:[['غرينلاند أكبر جزيرة في العالم.',1],['يمر مدار السرطان بسلطنة عُمان.',1],['يصب نهر الدانوب في بحر البلطيق.',0]],
+ text:[['ما أعمق بحيرة في العالم؟',['بايكال']],['في أي دولة يقع جبل كليمنجارو؟',['تنزانيا']],['ما أطول سلسلة جبال على اليابسة؟',['الأنديز']]],
+ guess:[['كم يبلغ عمق خندق ماريانا تقريباً بالمتر؟',11000,6000,'متر'],['كم يبلغ ارتفاع جبل شمس في عُمان تقريباً بالمتر؟',3009,1500,'متر'],['كم عدد الدول في قارة أفريقيا؟',54,25,'دولة']],
+ list:[['اذكر دولاً تقع في حوض نهر النيل',[['مصر'],['السودان'],['جنوب السودان'],['أوغندا'],['إثيوبيا'],['كينيا'],['تنزانيا'],['رواندا'],['بوروندي'],['الكونغو الديمقراطية','الكونغو'],['إريتريا']],4],['اذكر الدول التي لها حدود برية مع سلطنة عُمان',[['الإمارات'],['السعودية'],['اليمن']],3]],
+ order:[['رتّب الأنهار حسب الطول',[['التايمز',346],['الفرات',2800],['الكونغو',4700],['اليانغتسي',6300],['الأمازون',6400],['النيل',6650]],['من الأقصر إلى الأطول','من الأطول إلى الأقصر']]]
+},
+oman:{
+ mcq:[['ما الاسم القديم لعُمان في النقوش السومرية؟',['مجان','دلمون','ملوخا','سبأ'],0],['في أي ولاية يقع حصن جبرين؟',['نزوى','بهلاء','الحمراء','أدم'],1],['من الإمام الذي بنى حصن جبرين؟',['بلعرب بن سلطان','سلطان بن سيف','ناصر بن مرشد','أحمد بن سعيد'],0],['ما أعلى قمة جبلية في سلطنة عُمان؟',['جبل شمس','الجبل الأخضر','جبل سمحان','جبل الكور'],0]],
+ tf:[['كان اسم عُمان في النقوش السومرية «مجان».',1],['يقع حصن جبرين في ولاية نزوى.',0],['كان الإمام أحمد بن سعيد والياً على صحار قبل توليه الإمامة.',1]],
+ text:[['ما الاسم القديم لعُمان في النقوش السومرية؟',['مجان']],['من الإمام الذي بنى حصن جبرين؟',['بلعرب بن سلطان','بلعرب']],['ما أعلى قمة جبلية في سلطنة عُمان؟',['جبل شمس','شمس']]],
+ guess:[['كم عدد ولايات سلطنة عُمان؟',63,30,'ولاية'],['في أي عام ميلادي بُني حصن جبرين تقريباً؟',1670,120,'م']],
+ list:[['اذكر ولايات محافظة الداخلية',[['نزوى'],['بهلاء'],['منح'],['الحمراء'],['أدم'],['إزكي'],['سمائل'],['بدبد'],['الجبل الأخضر']],5],['اذكر ولايات محافظة مسقط',[['مسقط'],['مطرح'],['بوشر'],['السيب'],['العامرات'],['قريات']],4]],
+ order:[['رتّب أئمة دولة اليعاربة حسب توليهم الإمامة',[['ناصر بن مرشد',1624],['سلطان بن سيف',1649],['بلعرب بن سلطان',1679],['سيف بن سلطان',1692],['سلطان بن سيف الثاني',1711]],TIME_DIR]]
+},
+riddles:{
+ mcq:[['ما الشيء الذي يكون أخضر في الأرض، وأسود في السوق، وأحمر في البيت؟',['الشاي','القهوة','الفلفل','التمر'],0],['ما الشيء الذي تراه في «الليل» ثلاث مرات وفي «النهار» مرة واحدة؟',['القمر','حرف اللام','النجوم','حرف الياء'],1],['ما الشيء الذي إن أكلته كله استفدت، وإن أكلت نصفه مِتّ؟',['السمسم','العسل','التمر','الملح'],0]],
+ tf:[['كلمة «الليل» فيها حرف اللام ثلاث مرات.',1]],
+ text:[['ما الشيء الذي له أربعة أرجل ولا يستطيع المشي؟',['الكرسي','الطاولة','السرير']],['ما الذي يقرصك ولا تراه؟',['الجوع']]],
+ guess:[['غرفة لها 4 زوايا، في كل زاوية قطة، وأمام كل قطة 3 قطط. كم قطة في الغرفة؟',4,10,'قطط'],['ساعة تدقّ 6 دقات في 5 ثوانٍ. كم ثانية تحتاج لتدقّ 12 دقة؟',11,10,'ثانية']],
+ list:[],order:[]
+},
+capitals:{
+ mcq:[['ما عاصمة كازاخستان؟',['ألماتي','أستانا','طشقند','بيشكيك'],1],['ما عاصمة نيجيريا؟',['لاغوس','أبوجا','كانو','أكرا'],1],['ما عاصمة نيوزيلندا؟',['أوكلاند','ولينغتون','كرايستشيرش','سيدني'],1],['ما عاصمة ميانمار؟',['يانغون','نايبيداو','ماندالاي','بانكوك'],1]],
+ tf:[['عاصمة نيوزيلندا هي أوكلاند.',0],['عاصمة فيتنام هي هانوي.',1],['عاصمة تنزانيا الرسمية هي دودوما.',1]],
+ text:[['ما عاصمة نيجيريا؟',['أبوجا']],['ما عاصمة كازاخستان؟',['أستانا']],['ما عاصمة موريتانيا؟',['نواكشوط']]],
+ guess:[['كم عدد الدول العربية الواقعة في قارة أفريقيا؟',10,6,'دول']],
+ list:[['اذكر عواصم أوروبية',[['لندن'],['باريس'],['برلين'],['مدريد'],['روما'],['أمستردام'],['بروكسل'],['فيينا'],['برن'],['لشبونة'],['أثينا'],['وارسو'],['براغ'],['بودابست'],['ستوكهولم','استوكهولم'],['أوسلو'],['كوبنهاغن'],['هلسنكي'],['دبلن'],['موسكو'],['كييف'],['بوخارست'],['صوفيا'],['بلغراد']],6]],
+ order:[['رتّب الدول حسب عدد السكان',[['الهند',1440],['الصين',1410],['الولايات المتحدة',340],['إندونيسيا',280],['باكستان',240],['مصر',110]],['من الأقل سكاناً إلى الأكثر','من الأكثر سكاناً إلى الأقل']]]
+},
+nahw:{
+ mcq:[['ما علامة نصب الأسماء الخمسة؟',['الفتحة','الألف','الياء','الواو'],1],['ما علامة جر الاسم الممنوع من الصرف؟',['الكسرة','الفتحة','الياء','السكون'],1],['ما نوع «ما» في «ما أجملَ السماءَ!»؟',['نافية','استفهامية','تعجبية','موصولة'],2],['ما إعراب «عِبْرَةً» في قوله تعالى: «إِنَّ فِي ذَٰلِكَ لَعِبْرَةً»؟',['خبر إنّ','اسم إنّ مؤخر','مفعول به','حال'],1],['ما علامة رفع الأفعال الخمسة؟',['الضمة','الواو','ثبوت النون','الألف'],2]],
+ tf:[['علامة جر الممنوع من الصرف الكسرة دائماً.',0],['علامة نصب جمع المؤنث السالم الكسرة.',1],['«ليس» من أخوات «إنّ».',0]],
+ text:[['ما علامة رفع الأفعال الخمسة؟',['ثبوت النون','النون']],['ما علامة نصب جمع المؤنث السالم؟',['الكسرة']],['ما علامة جر الاسم الممنوع من الصرف؟',['الفتحة']]],
+ guess:[],
+ list:[['اذكر الأسماء الخمسة',[['أب','أبو'],['أخ','أخو'],['حم','حمو'],['فو','فم'],['ذو']],4],['اذكر الحروف التي تنصب الفعل المضارع',[['أن'],['لن'],['كي'],['إذن'],['لام التعليل'],['لام الجحود'],['حتى'],['فاء السببية'],['واو المعية']],4]],
+ order:[]
+},
+general:{
+ mcq:[['ما أكبر عضو داخلي في جسم الإنسان؟',['القلب','الرئة','الكبد','المعدة'],2],['كم عدد قلوب الأخطبوط؟',['1','2','3','4'],2],['من العالم المسلم الذي يُعد مؤسس علم الجبر؟',['ابن سينا','الخوارزمي','ابن الهيثم','البيروني'],1],['من مؤلف كتاب «القانون في الطب»؟',['الرازي','ابن النفيس','ابن سينا','الزهراوي'],2]],
+ tf:[['للأخطبوط ثلاثة قلوب.',1],['الكبد أكبر عضو داخلي في جسم الإنسان.',1],['ابن الهيثم هو مؤلف كتاب «القانون في الطب».',0]],
+ text:[['من العالم المسلم الذي يُعد مؤسس علم الجبر؟',['الخوارزمي']],['من مؤلف كتاب «القانون في الطب»؟',['ابن سينا']],['من العالم المسلم الملقّب بأبي البصريات؟',['ابن الهيثم']]],
+ guess:[['كم عدد عظام اليد الواحدة (مع الرسغ) في جسم الإنسان؟',27,20,'عظمة'],['كم لتراً من الدم في جسم الإنسان البالغ تقريباً؟',5,4,'لترات']],
+ list:[['اذكر علماء مسلمين',[['الخوارزمي'],['ابن سينا'],['ابن الهيثم'],['الرازي'],['البيروني'],['ابن خلدون'],['ابن رشد'],['الفارابي'],['جابر بن حيان'],['الإدريسي'],['ابن النفيس'],['الزهراوي'],['ابن بطوطة'],['الكندي']],5]],
+ order:[['رتّب العلماء المسلمين حسب تاريخ ولادتهم',[['جابر بن حيان',721],['الخوارزمي',780],['الرازي',865],['ابن الهيثم',965],['ابن سينا',980],['ابن خلدون',1332]],TIME_DIR]]
+}
+};
+
 /* تجميع البنك في قائمة أسئلة موحدة */
 const QUESTIONS=[];
-for(const [topic,kinds] of Object.entries(BANK)){
+for(const [BK,isHard] of [[BANK,false],[HARD,true]])for(const [topic,kinds] of Object.entries(BK)){
  for(const [kind,arr] of Object.entries(kinds)){
   (arr||[]).forEach((x,i)=>{
-   const id=topic+'.'+kind+'.'+i, b={id,topic,kind,q:x[0]};
+   const id=(isHard?'h.':'')+topic+'.'+kind+'.'+i, b={id,topic,kind,q:x[0],hard:isHard};
    if(kind==='mcq'){b.o=x[1];b.a=x[2];}
    else if(kind==='tf'){b.a=!!x[1];}
    else if(kind==='text'){b.a=x[1];}
@@ -381,6 +473,8 @@ function fmtNum(n){return Number(n).toLocaleString('ar-EG-u-nu-latn')}
 
 /* ===================== المحرّك ===================== */
 const INS={mcq:'اختر الإجابة الصحيحة من الخيارات الأربعة',tf:'اضغط «صح» إن كانت العبارة صحيحة، و«خطأ» إن كانت خاطئة',fast:'جولة السرعة: أول إجابة صحيحة تأخذ أعلى النقاط!',guess:'اكتب رقماً تقديرياً — الأقرب للصواب يحصد نقاطاً أكثر',text:'اكتب الإجابة في المربع ثم اضغط «إرسال»'};
+/* عدد الأسئلة الصعبة في الجزء: تلقائي = سؤال واحد إذا كان الجزء 3 أسئلة أو أقل، وسؤالان إذا كان أكثر */
+function hardCount(h,n){if(h==null||h==='auto')return n<=1?n:(n<=3?1:2);return clamp(parseInt(h)||0,0,n)}
 function buildPlan(cfg){
  const used=new Set(), rounds=[];
  if(cfg.intro&&cfg.intro.on){
@@ -392,13 +486,16 @@ function buildPlan(cfg){
  for(const t of ROUND_ORDER){
   const r=cfg.rounds[t]; if(!r||!r.on||r.n<1) continue;
   const pool=shuffle(poolFor(t,cfg.topics).filter(q=>!used.has(q.id)));
-  const qs=pool.slice(0,r.n); qs.forEach(q=>used.add(q.id));
+  const want=hardCount(cfg.hard,r.n);
+  const hardQ=pool.filter(q=>q.hard).slice(0,want),easyQ=pool.filter(q=>!q.hard).slice(0,r.n-hardQ.length);
+  const extra=pool.filter(q=>q.hard&&!hardQ.includes(q)).slice(0,r.n-hardQ.length-easyQ.length);
+  const qs=[...easyQ,...extra,...hardQ]; qs.forEach(q=>used.add(q.id));
   if(qs.length) rounds.push({t,T:clamp(r.sec,5,300)*1000,qs});
  }
  return rounds;
 }
 function prepareQ(q,rt){
- const pub={tp:TOPICS[q.topic]||'🎈 سؤال تمهيدي',tx:q.q}, Q={raw:q,pub,rt};
+ const pub={tp:TOPICS[q.topic]||'🎈 سؤال تمهيدي',tx:q.q}, Q={raw:q,pub,rt};if(q.hard)pub.hd=1;
  if(q.img){Q.img=q.img;pub.im=1}
  if(q.kind==='intro_choice'){
   const opts=q.o.map((t,i)=>({t:String(t||'').trim(),i})).filter(x=>x.t);
@@ -542,7 +639,7 @@ class Host{
  snapshot(){
   const r=this.plan[this.ri],st={v:this.v,ph:this.ph,pz:this.paused?1:0,rem:this.remaining(),dur:this.dur,qs:this.qs,gn:this.totalQ(),rn:this.plan.length};
   if(r){st.rt=r.t;st.ri=this.ri;st.qi=this.qi;st.qn=r.qs.length;st.gq=this.globalIndex()}
-  if(this.cur&&(this.ph==='pre'||this.ph==='q'||this.ph==='reveal'))st.q=this.ph==='pre'?{ins:this.cur.pub.ins,tp:this.cur.pub.tp,k:this.cur.pub.k}:this.cur.pub;
+  if(this.cur&&(this.ph==='pre'||this.ph==='q'||this.ph==='reveal'))st.q=this.ph==='pre'?{ins:this.cur.pub.ins,tp:this.cur.pub.tp,k:this.cur.pub.k,hd:this.cur.pub.hd}:this.cur.pub;
   if(this.ph==='reveal')st.res=this.res;
   if(this.ph==='q'){st.ac=this.answered;st.pc=this.nPlayers}
   const b=this.board();st.lb=b.map(e=>[hash(e.k),e.n.slice(0,18),e.s]);
@@ -728,8 +825,8 @@ function show(...nodes){VIEWERS.forEach(v=>{try{v.dispose()}catch(e){}});VIEWERS
 const G={mode:null,screen:null,me:{name:store.get('name',''),av:sanitizeAv(store.get('av',{g:'m',s:1,c:0,h:'kumma',hc:0,b:0}))},v:0,phKey:null,st:null,deadline:0,T:1,qs:-1,imgs:{},answered:false,draft:null,scoreAtQ:null,lastTick:0,kicked:false};
 const HOST={engine:null,beacon:null,lobbyV:0,kicked:new Set(),cfg:loadCfg()};
 const SOLO={ans:null};
-function loadCfg(){const d={topics:Object.keys(TOPICS),rounds:{},auto:true,reveal:6};for(const t of ROUND_ORDER)d.rounds[t]={on:true,n:TYPES[t].n,sec:TYPES[t].sec};const s=store.get('cfg',null);if(s&&s.rounds){d.topics=Array.isArray(s.topics)?s.topics.filter(t=>TOPICS[t]):d.topics;for(const t of ROUND_ORDER)if(s.rounds[t])d.rounds[t]=Object.assign(d.rounds[t],s.rounds[t]);d.auto=s.auto!==false;d.reveal=s.reveal||6;if(s.pts)d.pts=s.pts;if(s.cw!=null)d.cw=s.cw}
- d.pts=clamp(parseInt(d.pts)||1000,10,100000);d.cw=clamp(Number.isFinite(+d.cw)?+d.cw:80,0,100);
+function loadCfg(){const d={topics:Object.keys(TOPICS),rounds:{},auto:true,reveal:6};for(const t of ROUND_ORDER)d.rounds[t]={on:true,n:TYPES[t].n,sec:TYPES[t].sec};const s=store.get('cfg',null);if(s&&s.rounds){d.topics=Array.isArray(s.topics)?s.topics.filter(t=>TOPICS[t]):d.topics;for(const t of ROUND_ORDER)if(s.rounds[t])d.rounds[t]=Object.assign(d.rounds[t],s.rounds[t]);d.auto=s.auto!==false;d.reveal=s.reveal||6;if(s.pts)d.pts=s.pts;if(s.cw!=null)d.cw=s.cw;if(s.hard!=null)d.hard=s.hard}
+ if(d.hard==null)d.hard='auto';d.pts=clamp(parseInt(d.pts)||1000,10,100000);d.cw=clamp(Number.isFinite(+d.cw)?+d.cw:80,0,100);
  const it=store.get('intro',null);d.intro=it&&Array.isArray(it.items)?{on:it.on!==false,sec:clamp(parseInt(it.sec)||20,5,300),items:it.items}:{on:true,sec:20,items:JSON.parse(JSON.stringify(DEFAULT_INTRO))};
  return d}
 const saveCfg=()=>{const c=Object.assign({},HOST.cfg);delete c.intro;store.set('cfg',c)};
@@ -982,7 +1079,7 @@ function openLobby(){HOST.lobbyV=Date.now();if(HOST.beacon)clearInterval(HOST.be
 function buildSettings(onStart,startLabel){
  const cfg=HOST.cfg;const availEls={};
  const totals=h('div',{class:'mut small mt'});
- const refresh=()=>{let n=0,secs=0,parts=0;for(const t of ROUND_ORDER){const r=cfg.rounds[t];const a=poolFor(t,cfg.topics).length;const el=availEls[t];if(el){el.textContent='المتاح: '+a;el.className='avail'+(r.on&&a<r.n?' warn':'')}if(r.on&&a){const k=Math.min(a,r.n);n+=k;parts++;secs+=6.5+k*(3+r.sec*.8+(cfg.auto?cfg.reveal:8))}}const iq=cfg.intro&&cfg.intro.on?(cfg.intro.items||[]).filter(introValid).length:0;if(iq){n+=iq;parts++;secs+=6.5+iq*(3+(cfg.intro.sec||20)*.8+(cfg.auto?cfg.reveal:8))}totals.textContent=`المجموع: ${n} سؤالاً في ${parts} أجزاء${iq?' (منها '+iq+' تمهيدية)':''} — المدة التقريبية ${Math.max(1,Math.round(secs/60))} دقيقة`;saveCfg()};
+ const refresh=()=>{let n=0,secs=0,parts=0;for(const t of ROUND_ORDER){const r=cfg.rounds[t];const pl=poolFor(t,cfg.topics),a=pl.length,ah=pl.filter(q=>q.hard).length;const el=availEls[t];if(el){el.textContent='المتاح: '+a+' (منها '+ah+' صعبة)';el.className='avail'+(r.on&&a<r.n?' warn':'')}if(r.on&&a){const k=Math.min(a,r.n);n+=k;parts++;secs+=6.5+k*(3+r.sec*.8+(cfg.auto?cfg.reveal:8))}}const iq=cfg.intro&&cfg.intro.on?(cfg.intro.items||[]).filter(introValid).length:0;if(iq){n+=iq;parts++;secs+=6.5+iq*(3+(cfg.intro.sec||20)*.8+(cfg.auto?cfg.reveal:8))}totals.textContent=`المجموع: ${n} سؤالاً في ${parts} أجزاء${iq?' (منها '+iq+' تمهيدية)':''} — المدة التقريبية ${Math.max(1,Math.round(secs/60))} دقيقة`;saveCfg()};
  const tchips=Object.entries(TOPICS).map(([k,n])=>{const b=h('button',{type:'button',class:'tchip'+(cfg.topics.includes(k)?' on':''),onclick:()=>{const i=cfg.topics.indexOf(k);if(i>=0)cfg.topics.splice(i,1);else cfg.topics.push(k);b.classList.toggle('on');refresh()}},n);return b});
  const allB=h('button',{type:'button',class:'btn ghost sm',onclick:()=>{const all=cfg.topics.length<Object.keys(TOPICS).length;cfg.topics=all?Object.keys(TOPICS):[];tchips.forEach(b=>b.classList.toggle('on',all));refresh()}},'الكل / لا شيء');
  const rows=ROUND_ORDER.map(t=>{const r=cfg.rounds[t],T=TYPES[t];
@@ -992,12 +1089,14 @@ function buildSettings(onStart,startLabel){
   availEls[t]=h('span',{class:'avail'});
   return h('div',{class:'rrow'},h('label',{class:'rname'},chk,h('span',{text:T.icon}),h('span',{text:T.name})),h('label',{class:'rf'},'عدد الأسئلة',n),h('label',{class:'rf'},'الوقت لكل سؤال (ثانية)',s),availEls[t]);
  });
+ const hsel=h('select',{class:'num',style:'width:auto'},[['auto','تلقائي (1–2 حسب عدد أسئلة الجزء)'],['0','بدون أسئلة صعبة'],['1','سؤال صعب واحد'],['2','سؤالان صعبان'],['3','3 أسئلة صعبة']].map(([v,t])=>h('option',{value:v},t)));
+ hsel.value=cfg.hard==null?'auto':String(cfg.hard);hsel.onchange=()=>{cfg.hard=hsel.value==='auto'?'auto':parseInt(hsel.value);refresh()};
  const auto=h('input',{type:'checkbox'});auto.checked=!!cfg.auto;auto.onchange=()=>{cfg.auto=auto.checked;refresh()};
  const rv=h('input',{type:'number',class:'num',min:'3',max:'30',value:String(cfg.reveal),style:'width:80px'});rv.onchange=()=>{cfg.reveal=clamp(parseInt(rv.value)||6,3,30);rv.value=cfg.reveal;refresh()};
  const start=h('button',{class:'btn',type:'button',onclick:()=>{if(!buildPlan(cfg).length)return toast(cfg.topics.length?'لا توجد أسئلة مطابقة للإعدادات':'اختر موضوعاً واحداً على الأقل');onStart()}},startLabel);
  const ruleP=h('p',{class:'mut small'});const rule=()=>{ruleP.textContent=`كل نوع من الأسئلة جزء مستقل. التقييم: ${cfg.cw}% للإجابة الصحيحة و${100-cfg.cw}% للسرعة (${cfg.pts} نقطة لكل سؤال).`};
  refresh();rule();
- return{node:h('div',{},h('div',{class:'card'},h('h2',{class:'sec-t',text:'⚙️ إعدادات اللعبة'}),h('div',{class:'row'},h('b',{text:'المواضيع'}),h('span',{class:'sp'}),allB),h('div',{class:'types-strip',style:'justify-content:flex-start'},tchips),h('h3',{class:'sec-t mt',text:'أجزاء اللعبة وأنواع الأسئلة'}),ruleP,rows,h('div',{class:'row mt'},h('label',{class:'rname'},auto,'الانتقال التلقائي بعد عرض الإجابة خلال'),rv,h('span',{class:'mut',text:'ثانية'})),totals),introSection(refresh),scoringSection(refresh,rule)),start};
+ return{node:h('div',{},h('div',{class:'card'},h('h2',{class:'sec-t',text:'⚙️ إعدادات اللعبة'}),h('div',{class:'row'},h('b',{text:'المواضيع'}),h('span',{class:'sp'}),allB),h('div',{class:'types-strip',style:'justify-content:flex-start'},tchips),h('h3',{class:'sec-t mt',text:'أجزاء اللعبة وأنواع الأسئلة'}),ruleP,rows,h('div',{class:'row mt'},h('span',{text:'🔥 الأسئلة الصعبة في كل جزء:'}),hsel,h('span',{class:'mut small',text:'تأتي في نهاية الجزء'})),h('div',{class:'row mt'},h('label',{class:'rname'},auto,'الانتقال التلقائي بعد عرض الإجابة خلال'),rv,h('span',{class:'mut',text:'ثانية'})),totals),introSection(refresh),scoringSection(refresh,rule)),start};
 }
 function showHostSetup(){
  G.screen='host-setup';
@@ -1038,10 +1137,10 @@ function renderHostGame(full){
  const head=h('div',{class:'sbar'},h('span',{class:'stat'},T.icon+' ',h('b',{text:T.name})),h('span',{class:'stat',text:`الجزء ${e.ri+1} من ${e.plan.length}`}),h('span',{class:'stat',text:`السؤال ${e.globalIndex()} من ${e.totalQ()}`}),h('span',{class:'stat',dir:'ltr',text:'رمز: '+(NET.code||'')}),h('span',{class:'sp'}),e.dur?h('span',{class:'secs js-sec'}):null);
  let main;
  if(e.ph==='intro')main=h('div',{class:'card center'},h('div',{class:'big-ic',text:T.icon}),h('h1',{class:'hq',text:`الجزء ${e.ri+1}: ${T.name}`}),h('p',{class:'howbox',text:T.how}),h('p',{class:'mut',text:`${r.qs.length} أسئلة — ${r.T/1000} ثانية لكل سؤال`}));
- else if(e.ph==='pre')main=h('div',{class:'card center'},h('span',{class:'chip',text:e.cur.pub.tp}),h('h2',{class:'hq mt',text:'استعدّوا…'}),h('div',{class:'ins',style:'justify-content:center'},'💡 ',e.cur.pub.ins));
+ else if(e.ph==='pre')main=h('div',{class:'card center'},h('span',{class:'chip',text:e.cur.pub.tp}),e.cur.pub.hd?h('span',{class:'chip hard',text:'🔥 سؤال صعب'}):null,h('h2',{class:'hq mt',text:'استعدّوا…'}),h('div',{class:'ins',style:'justify-content:center'},'💡 ',e.cur.pub.ins));
  else{
   const q=e.cur.pub,rev=e.ph==='reveal';
-  const body=[h('span',{class:'chip',text:q.tp}),h('div',{class:'ins'},'💡 ',q.ins),h('div',{class:'qtext hq',text:q.tx})];
+  const body=[h('span',{class:'chip',text:q.tp}),q.hd?h('span',{class:'chip hard',text:'🔥 سؤال صعب'}):null,h('div',{class:'ins'},'💡 ',q.ins),h('div',{class:'qtext hq',text:q.tx})];
   if(e.cur.img)body.push(h('div',{class:'qimg big'},h('img',{src:e.cur.img,alt:''})));
   if(q.k==='choice')body.push(choiceGrid(q,null,rev?e.cur.ai:null));
   if(q.k==='order')body.push(h('div',{class:'pool'},q.it.map(t=>h('button',{type:'button',text:t}))));
@@ -1085,7 +1184,7 @@ function myStanding(st){const me=myHash(),lb=st.lb||[];const i=lb.findIndex(e=>e
 function liveUpdate(st){const s=myStanding(st);const a=$('#js-rank');if(a)a.textContent=s.rank?('#'+s.rank):'—'}
 function statusBar(st){const s=myStanding(st),T=TYPES[st.rt]||{};return h('div',{class:'sbar'},h('span',{class:'stat'},(T.icon||'')+' ',h('b',{text:T.name||''})),h('span',{class:'stat',text:`السؤال ${st.gq||''} من ${st.gn||''}`}),h('span',{class:'sp'}),G.mode==='solo'?h('button',{class:'btn ghost sm',type:'button',onclick:()=>HOST.engine&&HOST.engine.pause()},'⏸'):null,h('span',{class:'stat'},'نقاطي: ',h('b',{text:String(s.score??0)})),h('span',{class:'stat'},'مركزي: ',h('b',{id:'js-rank',text:s.rank?('#'+s.rank):'—'})))}
 function showIntro(st){G.screen='intro';const T=TYPES[st.rt];sfx('go');show(h('div',{class:'card stage center'},h('p',{class:'mut',text:`الجزء ${st.ri+1} من ${st.rn}`}),h('div',{class:'big-ic',text:T.icon}),h('h1',{style:'font-size:40px',text:T.name}),h('p',{class:'howbox',text:T.how}),h('div',{class:'count js-sec'})))}
-function showPre(st){G.screen='pre';const q=st.q||{};show(statusBar(st),h('div',{class:'card stage center'},h('span',{class:'chip',text:q.tp||''}),h('h2',{class:'mt',text:'استعد للسؤال…'}),h('div',{class:'ins',style:'justify-content:center;font-size:20px'},'💡 ',q.ins||''),h('div',{class:'count js-sec'})))}
+function showPre(st){G.screen='pre';const q=st.q||{};show(statusBar(st),h('div',{class:'card stage center'},h('span',{class:'chip',text:q.tp||''}),q.hd?h('span',{class:'chip hard',text:'🔥 سؤال صعب'}):null,h('h2',{class:'mt',text:'استعد للسؤال…'}),h('div',{class:'ins',style:'justify-content:center;font-size:20px'},'💡 ',q.ins||''),h('div',{class:'count js-sec'})))}
 const SHAPES=['◆','●','▲','■','★','⬟'];
 function choiceGrid(q,onPick,correct){
  const isOk=i=>Array.isArray(correct)?correct.includes(i):i===correct;
@@ -1133,7 +1232,7 @@ function showQuestion(st){
   area.append(h('div',{class:'corr',style:'margin-bottom:8px'},'↕ رتّب ',h('span',{text:q.dl})),slots,pool,send);
  }
  sfx('go');
- show(statusBar(st),h('div',{class:'stage'},h('div',{class:'row'},h('div',{class:'tbar sp'},h('i',{class:'js-bar'})),h('span',{class:'secs js-sec'})),h('div',{class:'card',id:'js-qcard'},h('span',{class:'chip',text:q.tp||''}),h('div',{class:'ins'},'💡 ',q.ins||''),h('div',{class:'qtext',text:q.tx||''}),qImage(st),h('div',{id:'js-area'},area))));
+ show(statusBar(st),h('div',{class:'stage'},h('div',{class:'row'},h('div',{class:'tbar sp'},h('i',{class:'js-bar'})),h('span',{class:'secs js-sec'})),h('div',{class:'card',id:'js-qcard'},h('span',{class:'chip',text:q.tp||''}),q.hd?h('span',{class:'chip hard',text:'🔥 سؤال صعب'}):null,h('div',{class:'ins'},'💡 ',q.ins||''),h('div',{class:'qtext',text:q.tx||''}),qImage(st),h('div',{id:'js-area'},area))));
 }
 function submit(v,auto){
  if(G.answered||G.screen!=='q')return;G.answered=true;

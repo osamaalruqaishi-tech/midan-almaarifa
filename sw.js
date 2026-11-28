@@ -2,9 +2,9 @@
    - الصفحة: من الشبكة أولاً (لتصل التحديثات فوراً) ومن الذاكرة عند انقطاع الإنترنت.
    - المكتبات والخطوط والأيقونات: من الذاكرة مع تحديثها في الخلفية.
    - الاتصال باللعبة الجماعية (WebSocket) لا يمر من هنا. */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'midan-' + VERSION;
-const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
+const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './tahaddi/', './tahaddi/index.html'];
 const CDN = ['https://cdnjs.cloudflare.com/', 'https://unpkg.com/', 'https://cdn.jsdelivr.net/', 'https://fonts.googleapis.com/', 'https://fonts.gstatic.com/'];
 
 self.addEventListener('install', e => {
@@ -24,13 +24,15 @@ self.addEventListener('fetch', e => {
 
   // صفحة اللعبة: الشبكة أولاً، ثم النسخة المحفوظة
   if (req.mode === 'navigate') {
+    const isTah = new URL(url).pathname.includes('/tahaddi/');
     e.respondWith((async () => {
       const cache = await caches.open(CACHE);
       try {
         const res = await Promise.race([fetch(req), timeout(6000)]);
-        if (res && res.ok) cache.put('./index.html', res.clone());
+        if (res && res.ok) cache.put(isTah ? './tahaddi/index.html' : './index.html', res.clone());
         return res;
       } catch (err) {
+        if (isTah) return (await cache.match('./tahaddi/index.html')) || (await cache.match('./tahaddi/')) || Response.error();
         return (await cache.match('./index.html')) || (await cache.match('./')) || Response.error();
       }
     })());

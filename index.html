@@ -2,8 +2,17 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ميدان المعرفة</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#081229">
+<meta name="description" content="مسابقة جماعية تفاعلية باللغة العربية">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ميدان المعرفة">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -17,7 +26,10 @@ body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opa
 #bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 h1,h2,h3,.kufi{font-family:'Titr Izki',Tajawal,sans-serif;font-weight:700;margin:0}
 button{font-family:inherit}
-.top{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;max-width:1180px;margin:0 auto;padding:14px 18px}
+.top{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;max-width:1180px;margin:0 auto;padding:14px 18px;padding-top:max(14px,env(safe-area-inset-top));padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+#app{padding-bottom:max(60px,env(safe-area-inset-bottom))}
+.installbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:18px;padding:14px 16px;border-radius:16px;background:linear-gradient(90deg,rgba(226,188,85,.16),rgba(34,166,143,.14));border:1px solid var(--line)}
+.installbar img{width:44px;height:44px;border-radius:11px}
 .brand{display:flex;align-items:center;gap:10px;font-family:'Titr Izki',Tajawal;font-size:22px;color:var(--gold2);cursor:pointer}
 .brand svg{width:30px;height:30px}
 .hdr{display:flex;gap:8px;align-items:center}
@@ -1016,7 +1028,7 @@ function showWelcome(){
  cards.push(mode('🎯','تدريب فردي','العب وحدك على هذا الجهاز وجرّب أنواع الأسئلة كلها.',()=>showJoin('solo')));
  const strip=h('div',{class:'types-strip'},ROUND_ORDER.map(t=>h('span',{class:'chip'},TYPES[t].icon+' '+TYPES[t].name)));
  const note=h('div',{class:'note'},'لا يحتاج أحد إلى حساب: يكفي فتح الصفحة وكتابة رمز اللعبة. يتطلب اللعب الجماعي اتصالاً بالإنترنت، وتمر الأسماء والإجابات عبر خادم عام مجاني.');
- show(h('div',{class:'hero'},h('div',{class:'basmala',text:'بسم الله الرحمن الرحيم'}),h('h1',{text:'ميدان المعرفة'}),h('p',{text:'مسابقة جماعية تفاعلية: يتنافس المشاركون في اللحظة نفسها عبر سبعة أنواع من التحديات وأحد عشر مجالاً معرفياً.'}),strip),h('div',{class:'cards'},cards),note);
+ show(h('div',{class:'hero'},h('div',{class:'basmala',text:'بسم الله الرحمن الرحيم'}),h('h1',{text:'ميدان المعرفة'}),h('p',{text:'مسابقة جماعية تفاعلية: يتنافس المشاركون في اللحظة نفسها عبر سبعة أنواع من التحديات وأحد عشر مجالاً معرفياً.'}),strip),h('div',{class:'cards'},cards),installBar(),note);
 }
 
 /* ----- الانضمام وتصميم الشخصية ----- */
@@ -1313,6 +1325,20 @@ function setPausedUI(on){
 
 try{document.fonts&&document.fonts.load('40px "Titr Izki"')}catch(e){}
 try{initBG()}catch(e){}
+/* ===================== تطبيق قابل للتثبيت (PWA) ===================== */
+const APP={prompt:null,standalone:(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true};
+const IS_IOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();APP.prompt=e;if(G.screen==='welcome')showWelcome()});
+addEventListener('appinstalled',()=>{APP.prompt=null;APP.standalone=true;toast('تم تثبيت التطبيق ✓ — تجده في الشاشة الرئيسية');if(G.screen==='welcome')showWelcome()});
+function installBar(){
+ if(APP.standalone||!location.protocol.startsWith('http'))return null;
+ const ic=h('img',{src:'icons/icon-192.png',alt:''});
+ if(APP.prompt)return h('div',{class:'installbar'},ic,h('div',{},h('b',{text:'ثبّت «ميدان المعرفة» كتطبيق'}),h('div',{class:'mut small',text:'أيقونة على الشاشة الرئيسية، وشاشة كاملة، والتدريب الفردي يعمل دون إنترنت.'})),
+  h('button',{class:'btn sm',type:'button',onclick:async()=>{const p=APP.prompt;if(!p)return;APP.prompt=null;try{await p.prompt();await p.userChoice}catch(e){}showWelcome()}},'📲 تثبيت التطبيق'));
+ if(IS_IOS)return h('div',{class:'installbar'},ic,h('div',{},h('b',{text:'ثبّت «ميدان المعرفة» على الآيفون'}),h('div',{class:'mut small',text:'من Safari: اضغط زر المشاركة ⬆️ ثم «إضافة إلى الشاشة الرئيسية».'})));
+ return null;
+}
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){addEventListener('load',()=>{try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}})}
 (function init(){const m=location.hash.match(/^#(\d{6})$/);setConn();if(m&&validCode(m[1])){G.prefCode=m[1];showJoin('player')}else showWelcome()})();
 addEventListener('pagehide',()=>{if(NET.client&&NET.role==='player')try{NET.client.publish(T('p/'+NET.pid),'',{retain:true,qos:0})}catch(e){}});
 </script>

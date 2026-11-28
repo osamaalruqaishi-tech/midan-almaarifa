@@ -1,0 +1,20 @@
+{
+  "name": "ميدان المعرفة",
+  "short_name": "ميدان المعرفة",
+  "description": "مسابقة جماعية تفاعلية باللغة العربية — العب مع العائلة والأصدقاء برمز اللعبة دون أي حساب.",
+  "id": "./",
+  "start_url": "./?source=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#081229",
+  "theme_color": "#081229",
+  "categories": ["games", "education", "entertainment"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

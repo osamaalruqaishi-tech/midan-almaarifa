@@ -2,7 +2,7 @@
    - الصفحة: من الشبكة أولاً (لتصل التحديثات فوراً) ومن الذاكرة عند انقطاع الإنترنت.
    - المكتبات والخطوط والأيقونات: من الذاكرة مع تحديثها في الخلفية.
    - الاتصال باللعبة الجماعية (WebSocket) لا يمر من هنا. */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = 'midan-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './tahaddi/', './tahaddi/index.html'];
 const CDN = ['https://cdnjs.cloudflare.com/', 'https://unpkg.com/', 'https://cdn.jsdelivr.net/', 'https://fonts.googleapis.com/', 'https://fonts.gstatic.com/'];

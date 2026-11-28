@@ -168,6 +168,16 @@ button{font-family:inherit}
 .small{font-size:14px}
 .mt{margin-top:14px}
 .hide{display:none!important}
+.steps{display:flex;gap:10px;justify-content:center;margin:4px 0 16px;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;border:1px solid var(--line);color:var(--mut);background:rgba(0,0,0,.2);font-weight:700}
+.step .sn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);font-size:14px}
+.step.on{color:var(--gold2);border-color:var(--gold);background:rgba(226,188,85,.14)}.step.on .sn{background:var(--gold);color:#1c1405}
+.step.done{color:#8ff0d9;border-color:rgba(34,166,143,.5)}.step.done .sn{background:var(--teal);color:#fff}
+.invite{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+@media(max-width:860px){.invite{grid-template-columns:1fr}}
+.invite .qr img,.invite .qr canvas{width:240px!important;height:240px!important}
+.navbar{position:sticky;bottom:10px;z-index:5;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.summary{margin-top:8px;display:flex;flex-direction:column;gap:4px}
 .chip.hard{background:rgba(229,107,74,.2);border-color:#e5764a;color:#ffc2a8;margin-inline-start:6px;font-weight:800}
 .qimg{display:flex;justify-content:center;align-items:center;margin:4px 0 14px;min-height:80px}
 .qimg img{max-width:100%;max-height:42vh;border-radius:16px;border:3px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.4);object-fit:contain;background:#000}
@@ -1004,7 +1014,8 @@ function myHash(){return hash(myKey())}
 function playerPeers(){return[...NET.peers.values()].map(p=>({k:p.pid,name:p.name,av:p.av,isMe:p.pid===NET.pid,ans:p.ans,upd:p.upd}))}
 function avatarByHash(hh){if(G.mode==='solo'&&hh===hash('me'))return G.me.av;for(const p of NET.peers.values())if(hash(p.pid)===hh)return p.av;return null}
 function onPeersChange(){
- if(G.mode==='host'&&G.screen==='host-setup')renderHostPlayers();
+ if(G.mode==='host'&&G.screen==='host-lobby')renderHostPlayers();
+ if(G.mode==='host'&&G.screen==='host-settings')updatePc2();
  if(G.mode==='player'&&G.screen==='lobby')renderLobbyPlayers();
 }
 
@@ -1082,13 +1093,6 @@ function renderLobbyPlayers(){
 function onKicked(){G.kicked=true;G.screen='kicked';if(NET.client)NET.client.publish(T('p/'+NET.pid),'',{retain:true,qos:1});NET.me=null;netDrop();NET.code=null;G.mode=null;show(h('div',{class:'card stage center'},h('div',{class:'big-ic',text:'🚪'}),h('h2',{text:'أخرجك المشرف من هذه المسابقة'}),h('button',{class:'btn mt',type:'button',onclick:goHome},'الصفحة الرئيسية')))}
 
 /* ----- إعدادات المشرف ----- */
-async function startHost(){
- G.mode='host';HOST.kicked=new Set();G.screen='connecting';
- show(h('div',{class:'card stage center'},h('div',{class:'big-ic',text:'📡'}),h('h2',{class:'dots',text:'جارٍ إنشاء اللعبة'})));
- try{await netConnect('host',null)}catch(e){G.mode=null;toast(e.message==='lib'?'تعذّر تحميل مكتبة الاتصال — تحقق من الإنترنت':'تعذّر الاتصال بخادم اللعبة — تحقق من الإنترنت وحاول مجدداً',4000);showWelcome();return}
- setConn();openLobby();
-}
-function openLobby(){HOST.lobbyV=Date.now();if(HOST.beacon)clearInterval(HOST.beacon);const f=()=>emitState({v:HOST.lobbyV,ph:'lobby'});f();HOST.beacon=setInterval(f,5000);pubKicks();showHostSetup()}
 function buildSettings(onStart,startLabel){
  const cfg=HOST.cfg;const availEls={};
  const totals=h('div',{class:'mut small mt'});
@@ -1111,17 +1115,49 @@ function buildSettings(onStart,startLabel){
  refresh();rule();
  return{node:h('div',{},h('div',{class:'card'},h('h2',{class:'sec-t',text:'⚙️ إعدادات اللعبة'}),h('div',{class:'row'},h('b',{text:'المواضيع'}),h('span',{class:'sp'}),allB),h('div',{class:'types-strip',style:'justify-content:flex-start'},tchips),h('h3',{class:'sec-t mt',text:'أجزاء اللعبة وأنواع الأسئلة'}),ruleP,rows,h('div',{class:'row mt'},h('span',{text:'🔥 الأسئلة الصعبة في كل جزء:'}),hsel,h('span',{class:'mut small',text:'تأتي في نهاية الجزء'})),h('div',{class:'row mt'},h('label',{class:'rname'},auto,'الانتقال التلقائي بعد عرض الإجابة خلال'),rv,h('span',{class:'mut',text:'ثانية'})),totals),introSection(refresh),scoringSection(refresh,rule)),start};
 }
-function showHostSetup(){
- G.screen='host-setup';
- const S=buildSettings(hostStart,'▶ ابدأ اللعبة للجميع');
+/* ===== المشرف: الخطوة 1 الإعدادات ← الخطوة 2 صفحة الدعوة ===== */
+function startHost(){G.mode='host';HOST.kicked=new Set();HOST.lobbyV=0;showHostSettings()}
+function stepsBar(n){return h('div',{class:'steps'},[['⚙️','إعدادات اللعبة'],['📨','دعوة المتسابقين']].map(([ic,t],i)=>h('div',{class:'step'+(i+1===n?' on':i+1<n?' done':'')},h('span',{class:'sn',text:i+1<n?'✓':String(i+1)}),h('span',{text:ic+' '+t}))))}
+function showHostSettings(){
+ G.screen='host-settings';
+ const live=!!(NET.client&&HOST.lobbyV);
+ const S=buildSettings(goInvite,live?'💾 حفظ والعودة إلى صفحة الدعوة ←':'التالي: دعوة المتسابقين ←');
+ const pc=live?h('span',{class:'chip',id:'js-pc2'}):null;
+ show(stepsBar(1),
+  h('div',{class:'row',style:'margin-bottom:12px'},h('h2',{class:'sec-t',style:'margin:0',text:'الخطوة 1: جهّز اللعبة'}),h('span',{class:'sp'}),pc),
+  S.node,
+  h('div',{class:'card mt center navbar'},S.start,h('button',{class:'btn ghost',type:'button',onclick:goHome},live?'إغلاق اللعبة':'رجوع')));
+ updatePc2();
+}
+function updatePc2(){const c=$('#js-pc2');if(c){const n=playerPeers().filter(p=>!HOST.kicked.has(p.k)).length;c.textContent=`👥 ${n} في قاعة الانتظار · رمز ${NET.code||''}`}}
+async function goInvite(){
+ if(!NET.client){
+  G.screen='connecting';
+  show(stepsBar(2),h('div',{class:'card stage center'},h('div',{class:'big-ic',text:'📡'}),h('h2',{class:'dots',text:'جارٍ إنشاء اللعبة'})));
+  try{await netConnect('host',null)}catch(e){toast(e.message==='lib'?'تعذّر تحميل مكتبة الاتصال — تحقق من الإنترنت':'تعذّر الاتصال بخادم اللعبة — تحقق من الإنترنت وحاول مجدداً',4000);showHostSettings();return}
+  setConn();
+ }
+ if(!HOST.lobbyV||!HOST.beacon)openLobby();else showHostLobby();
+}
+function openLobby(){HOST.lobbyV=Date.now();if(HOST.beacon)clearInterval(HOST.beacon);const f=()=>emitState({v:HOST.lobbyV,ph:'lobby'});f();HOST.beacon=setInterval(f,5000);pubKicks();showHostLobby()}
+function planSummary(){
+ const p=buildPlan(HOST.cfg),n=p.reduce((a,r)=>a+r.qs.length,0),intro=p.find(r=>r.t==='intro');
+ const parts=p.filter(r=>r.t!=='intro').map(r=>TYPES[r.t].icon+' '+TYPES[r.t].name+' ('+r.qs.length+')');
+ return h('div',{class:'summary'},h('b',{text:`${n} سؤالاً${intro?' — منها '+intro.qs.length+' تمهيدية':''}`}),h('div',{class:'mut small',text:parts.join(' · ')}),h('div',{class:'mut small',text:`التقييم: ${HOST.cfg.cw}% للصحة و${100-HOST.cfg.cw}% للسرعة · ${HOST.cfg.pts} نقطة للسؤال`}));
+}
+function showHostLobby(){
+ G.screen='host-lobby';
  const link=joinLink(NET.code);const qr=h('div',{class:'qr'});
  const codeCard=h('div',{class:'card center codecard'},h('div',{class:'mut',text:'رمز اللعبة'}),h('div',{class:'bigcode',dir:'ltr',text:NET.code||''}),qr,
   link?h('div',{class:'small mut',dir:'ltr',style:'word-break:break-all',text:link}):h('div',{class:'small mut',text:'افتح الصفحة من رابطها المنشور ليظهر رابط الدعوة'}),
   link?h('button',{class:'btn ghost sm mt',type:'button',onclick:()=>{navigator.clipboard.writeText(link).then(()=>toast('نُسخ الرابط'),()=>toast('انسخ الرابط يدوياً'))}},'📋 نسخ رابط الدعوة'):null,
   h('p',{class:'small mut',text:'يفتح المتسابقون الرابط أو يمسحون الرمز، أو يكتبون الرمز في «انضم إلى لعبة».'}));
  if(link)makeQR(qr,link);
- const right=h('div',{},codeCard,h('div',{class:'card mt'},h('h2',{class:'sec-t',text:'👥 المتسابقون'}),h('p',{class:'mut small',id:'js-pcount'}),h('div',{class:'plist',id:'js-plist'}),S.start,h('button',{class:'btn ghost sm mt',type:'button',onclick:goHome},'إغلاق اللعبة')));
- show(h('div',{class:'setup'},S.node,right));renderHostPlayers();
+ const startB=h('button',{class:'btn',type:'button',onclick:()=>{if(!buildPlan(HOST.cfg).length){toast('لا توجد أسئلة مطابقة للإعدادات');return showHostSettings()}hostStart()}},'▶ ابدأ اللعبة للجميع');
+ const players=h('div',{class:'card'},h('h2',{class:'sec-t',text:'👥 المتسابقون'}),h('p',{class:'mut small',id:'js-pcount'}),h('div',{class:'plist',id:'js-plist'}),startB,
+  h('div',{class:'card mt',style:'background:rgba(255,255,255,.03);box-shadow:none'},h('div',{class:'row'},h('b',{text:'⚙️ إعدادات هذه اللعبة'}),h('span',{class:'sp'}),h('button',{class:'btn ghost sm',type:'button',onclick:showHostSettings},'تعديل الإعدادات')),planSummary()),
+  h('button',{class:'btn ghost sm mt',type:'button',onclick:goHome},'إغلاق اللعبة'));
+ show(stepsBar(2),h('h2',{class:'sec-t',text:'الخطوة 2: ادعُ المتسابقين ثم ابدأ'}),h('div',{class:'invite'},codeCard,players));renderHostPlayers();
 }
 function renderHostPlayers(){
  const l=$('#js-plist');if(!l)return;const ps=playerPeers().filter(p=>!HOST.kicked.has(p.k));
